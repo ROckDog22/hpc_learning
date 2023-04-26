@@ -31,12 +31,11 @@ using namespace std;
 // lexer 返回的所有 token 种类的声明
 // 注意 IDENT 和 INT_CONST 会返回 token 的值, 分别对应 str_val 和 int_val
 %token INT RETURN
-%token <str_val> IDENT
+%token <str_val> IDENT OPERATOR
 %token <int_val> INT_CONST
 
 // 非终结符的类型定义
-%type <ast_val> FuncDef FuncType Block Stmt
-%type <int_val> Number
+%type <ast_val> FuncDef FuncType Block Stmt Number Exp PrimaryExp UnaryExp UnaryOp
 
 %%
 
@@ -62,7 +61,6 @@ FuncDef
 FuncType
   : INT {
     auto ast = new FuncTypeAST();
-    // ast->value = make_unique<std::string>("int");
     $$ = ast;
   }
   ;
@@ -76,17 +74,63 @@ Block
   ;
 
 Stmt
-  : RETURN Number ';' {
+  : RETURN Exp ';' {
     auto ast = new StmtAST();
-    ast->number = $2;
+    ast->exp = unique_ptr<BaseAST>($2);
+    $$ = ast;
+  }
+  ;
+
+Exp
+  : UnaryExp {
+    auto ast = new ExpAST();
+    ast->unaryexp = unique_ptr<BaseAST>($1);
+    $$ = ast;
+  }
+  ;
+
+PrimaryExp
+  : "(" Exp ")" {
+    auto ast = new PrimaryExpAST();
+    ast->flag = 1;
+    ast->exp = unique_ptr<BaseAST>($2);
+    $$ = ast;
+  } | Number{
+    auto ast = new PrimaryExpAST();
+    ast->flag = 2;
+    ast->number = unique_ptr<BaseAST>($1);
+    $$ = ast;
+  }
+  ;
+
+UnaryExp
+  : PrimaryExp {
+    auto ast = new UnaryExpAST();
+    ast->flag = 1;
+    ast->primaryexp = unique_ptr<BaseAST>($1);
+    $$ = ast;
+  } | UnaryOp UnaryExp {
+    auto ast = new UnaryExpAST();
+    ast->flag = 2;
+    ast->unaryop = unique_ptr<BaseAST>($1);
+    ast->unaryexp = unique_ptr<BaseAST>($2);
+    $$ = ast;
+  }
+  ;
+
+UnaryOp
+  : OPERATOR {
+    auto ast = new UnaryOpAst();
+    ast->val = *unique_ptr<string>($1);
     $$ = ast;
   }
   ;
 
 Number
   : INT_CONST {
-    int val = $1;
-    $$ = val;
+    auto ast = new NumberAST();
+    ast->val = $1;
+    $$ = ast;
   }
   ;
 

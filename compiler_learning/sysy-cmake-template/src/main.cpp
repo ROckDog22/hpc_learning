@@ -90,11 +90,10 @@ int main(int argc, const char *argv[]) {
   assert(!parse_ret);
   freopen("IR.txt","w",stdout);
   ast->Dump();
-  FILE* ff=fopen("IR.txt","r");
-  char *buf=(char *)malloc(10000000);
-  fread(buf, 1,10000000, ff);
-  parse_string(buf);
-  freopen(output,"w",stdout);
-  parse_string(buf);
+  // FILE* ff=fopen("IR.txt","r");
+  // char *buf=(char *)malloc(10000000);
+  // fread(buf, 1,10000000, ff);
+  // freopen(output,"w",stdout);
+  // parse_string(buf);
   return 0;
 }
