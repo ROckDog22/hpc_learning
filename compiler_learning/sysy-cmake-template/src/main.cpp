@@ -1,3 +1,17 @@
+// Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include <cassert>
 #include <cstdio>
 #include <iostream>
@@ -27,16 +41,16 @@ void parse_string(const char* str)
   koopa_raw_program_t raw = koopa_build_raw_program(builder, program);
   // 释放 Koopa IR 程序占用的内存
   koopa_delete_program(program);
-  
+
   cout<<"   .text"<<endl;
-  
+
   for (size_t i = 0; i < raw.funcs.len; ++i) {
   // 正常情况下, 列表中的元素就是函数, 我们只不过是在确认这个事实
   // 当然, 你也可以基于 raw slice 的 kind, 实现一个通用的处理函数
       assert(raw.funcs.kind == KOOPA_RSIK_FUNCTION);
       // 获取当前函数
       koopa_raw_function_t func = (koopa_raw_function_t) raw.funcs.buffer[i];
-      
+
       cout<<"   .globl "<<func->name+1<<endl;
       cout<<func->name+1<<":"<<endl;
 
