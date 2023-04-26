@@ -11,9 +11,9 @@ jobs:
       - name: checkout develop
         run: |
           if ! git show-ref --quiet refs/heads/master; then \
-              echo "local develop branch is missing, creating local develop branch that tracks remote develop branch"
-              git fetch origin develop
-              git branch develop --track origin/master
+              echo "local master branch is missing, creating local master branch that tracks remote develop branch"
+              git fetch origin master
+              git branch master --track origin/master
           else
             echo "local master branch exist, skipping"
           fi
