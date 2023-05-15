@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cassert>
+#include <cassert> // 断言语句
 #include <cstdio>
 #include <iostream>
 #include <memory>
@@ -26,7 +26,15 @@ using namespace std;
 // 其次, 因为这个文件不是我们自己写的, 而是被 Bison 生成出来的
 // 你的代码编辑器/IDE 很可能找不到这个文件, 然后会给你报错 (虽然编译不会出错)
 // 看起来会很烦人, 于是干脆采用这种看起来 dirty 但实际很有效的手段
+
+// extern C的外部变量声明，它告诉编译器yyin是一个指向FILE类型的指针变量，但是yyin的定义不在当前编译单元中，而在其他编译单元中，因此需要用extern关键字来引用
+// 在编写编译器或者解释器时，通常需要读取源代码文件进行分析和处理，yyin就是这样的一个指针变量，它指向了当前正在处理的源代码文件
+// yyin通常与词法分析器lexer和语法分析器parser配合使用，词法分析器会从yyin指向的文件中读取字符并进行词法分析，将分析结果传递给语法分析器进行语法分析和代码生成。
 extern FILE *yyin;
+// 是c++函数声明，它指定了一个名为yyparse的函数，该函数接受一个unique_ptr<BaseAST>类型的引用作为参数，并返回一个整数值
+// yyparse函数通常用于解析源代码生成抽象语法树AST，在编写编译器或解释器时，词法分析器和语法分析器通常是分开的模块，yyparse
+// 函数通常用于解析源代码并生成抽象语法树AST，yyparse 是语法分析的入口点，它会从词法分析器获取标记，将它们组合成语法结构生成AST
+// yyparse执行完完成后，解析器通常会将AST传递给代码生成器进行代码生成。
 extern int yyparse(unique_ptr<BaseAST> &ast);
 
 void parse_string(const char* str)
