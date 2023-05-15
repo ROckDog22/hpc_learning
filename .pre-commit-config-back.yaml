@@ -16,7 +16,7 @@ repos:
     hooks:
     -   id: copyright_checker
         name: copyright_checker
-        entry: python ./tools/copyright.hook
+        entry: /root/anaconda3/bin/python ./tools/copyright.hook
         language: system
         files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|proto|xpu|kps|py|sh)$
 -   repo: https://github.com/PyCQA/autoflake

@@ -49,3 +49,22 @@ cmake --build "build目录" -j `nproc`
 如需链接 `libkoopa`, 你的 `CMakeLists.txt` 应当处理 `LIB_DIR` 和 `INC_DIR`.
 
 模板中的 `CMakeLists.txt` 已经处理了上述内容, 你无需额外关心.
+
+
+# 运行逻辑
+
+
+```bash
+//
+docker run -it --rm maxxing/compiler-dev bash
+docker run -it -v $pwd:/root  maxxing/compiler-dev bash
+cd sysy-cmake-template/
+cmake -DCMAKE_BUILD_TYPE=Debug -B build
+
+//
+docker run --rm -it -v /home/wangfengsheng/workspace/github/baidu_learning:/root/  maxxing/compiler-dev bash
+cd compiler_learning/sysy-cmake-template/
+cd build
+cmake .. && make
+./compiler -koopa ../hello.c -o ../hello.koopa
+```

@@ -13,8 +13,17 @@
 // limitations under the License.
 
 #pragma once
+
 #include "iostream"
 using namespace std;
+
+// int now 定义为强符号，指的是全局变量或者函数，并且该变量或函数被多个文件引用，那么在链接时会出现符号重复定义
+// 的问题 解决办法是将强符号改为弱符号，可以通过在定义时使用关键字extern 来实现，int x = 1 改为弱符号 extern int x =1;
+// 这样在其他文件中使用 extern int x 就不会出现符号重复定义的错误， 如果定义是不指定处置 默认为弱符号
+// 使用命名空间，可以将定义强符号的变量或函数放在一个命名空间中，以避免与其他文件中的符号冲突，使用时前面加上命名空间的名称
+// 将定义放在头文件中，如果定义强符号的变量或函数需要在多个文件中使用，引入头文件，在包含头文件时需要使用预处理指令#ifndef #define
+// 避免头文件重复包含
+// 如果只需要在当前文件中使用，可以将其定义为静态变量或函数，加上static 就只会在当前文件中使用避免冲突
 
 static int now = 0;
 
@@ -32,13 +41,13 @@ class NumberAST : public BaseAST  {
     int val;
 
     void Dump() const {
-      std::cout << val;
+      // std::cout << val;
     }
   };
 
 class UnaryOpAst : public BaseAST {
  public:
-  string val;
+  char val;
 
   void Dump() const override {
     std::cout << val;
@@ -50,7 +59,7 @@ class ExpAST : public BaseAST {
   std::unique_ptr<BaseAST> unaryexp;
 
   void Dump() const override {
-    std::cout << "ExpAST";
+    unaryexp->Dump();
   }
 };
 
@@ -59,22 +68,37 @@ class PrimaryExpAST : public BaseAST {
   int flag;
   std::unique_ptr<BaseAST> exp;
   std::unique_ptr<BaseAST> number;
-
+  
   void Dump() const override {
-    std::cout << "PrimaryExp";
+    if(flag==1){
+      exp->Dump();
+    }else if(flag==2){
+      number->Dump();
+    }
   }
 };
 
 class UnaryExpAST : public BaseAST {
  public:
 
-  string flag;
+  int flag;
+  char unaryop;
   std::unique_ptr<BaseAST> primaryexp;
-  std::unique_ptr<BaseAST> unaryop;
   std::unique_ptr<BaseAST> unaryexp;
 
   void Dump() const override {
-    std::cout << "UnaryExpAst";
+    if(flag == 1){
+      primaryexp->Dump();
+    }else if(flag == 2){
+      unaryexp->Dump();
+      if(unaryop == '-'){
+        cout<<"  %"<<now <<" = sub 0, %"<<now-1<<endl;
+      }
+      if(unaryop=='!'){
+        cout<<"  %"<<now <<" = eq "<< 6 <<", 0"<<endl;
+      }
+      now++;
+    }
   }
 };
 
@@ -82,7 +106,7 @@ class FuncTypeAST : public BaseAST {
  public:
 
   void Dump() const override {
-    std::cout<<"i32";
+    std::cout<<" i32 ";
   }
 };
 
@@ -93,8 +117,8 @@ class StmtAST : public BaseAST {
 
     void Dump() const override {
       std::cout<<"%entry:"<<endl;
-      std::cout << "PrimaryExp";
-      std::cout << "  ret "<<endl;;
+      exp->Dump();
+      std::cout << "  ret %"<<now;
   }
 };
 
@@ -105,7 +129,7 @@ class BlockAST : public BaseAST {
 
   void Dump() const override {
     std::cout << "{"<<endl;
-    std::cout << "PrimaryExp";
+    stmt->Dump();
     std::cout << "}"<<endl;
   }
 };
@@ -118,8 +142,8 @@ class FuncDefAST : public BaseAST {
   std::unique_ptr<BaseAST> block;
 
   void Dump() const override {
-    std::cout << "fun @"<<ident<<"(): ";
-    std::cout << "PrimaryExp";
+    std::cout << "fun @"<<ident<<"():";
+    func_type->Dump();
     block->Dump();
   }
 };
@@ -130,6 +154,6 @@ class CompUnitAST : public BaseAST {
   std::unique_ptr<BaseAST> func_def;
 
   void Dump() const override {
-    std::cout << "PrimaryExp";
+    func_def->Dump();
   }
 };
