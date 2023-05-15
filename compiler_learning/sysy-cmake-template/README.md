@@ -66,5 +66,5 @@ docker run --rm -it -v /home/wangfengsheng/workspace/github/baidu_learning:/root
 cd compiler_learning/sysy-cmake-template/
 cd build
 cmake .. && make
-compiler -koopa hello.c -o ./hello.koopa
+./compiler -koopa ../hello.c -o ../hello.koopa
 ```

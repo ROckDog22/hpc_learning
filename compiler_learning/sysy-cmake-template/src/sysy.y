@@ -35,6 +35,7 @@ using namespace std;
 // 而且由于共享义块内存，析构函数无法正确释放资源，可能会导致内存泄漏或者文件未能正确关闭
 %union {
   std::string *str_val;
+  char char_val;
   int int_val;
   BaseAST *ast_val;
 }
@@ -42,11 +43,12 @@ using namespace std;
 // lexer 返回的所有 token 种类的声明
 // 注意 IDENT 和 INT_CONST 会返回 token 的值, 分别对应 str_val 和 int_val
 %token INT RETURN
-%token <str_val> IDENT OPERATOR
+%token <str_val> IDENT
 %token <int_val> INT_CONST
+%token <char_val> UnaryOp
 
 // 非终结符的类型定义
-%type <ast_val> FuncDef FuncType Block Stmt Number Exp PrimaryExp UnaryExp UnaryOp
+%type <ast_val> FuncDef FuncType Block Stmt Number Exp PrimaryExp UnaryExp
 
 %%
 // 定义语法规则，同时定义了parser解析完语法规则之后的操作
@@ -59,8 +61,10 @@ using namespace std;
 // union 里面的成员变量共享同一段内存空间，当修改其中一个值时，需要注意其他成员变量的值可能会发生变化
 CompUnit
   : FuncDef {
+    // 返回unique_ptr<T>
     auto comp_unit = make_unique<CompUnitAST>();
     comp_unit->func_def = unique_ptr<BaseAST>($1);
+    // 因为每个unique_ptr都是一种智能指针，用于管理动态内存的分配, 当需要转移一个对象用move
     ast = move(comp_unit);
   }
   ;
@@ -69,7 +73,7 @@ FuncDef
   : FuncType IDENT '(' ')' Block {
     auto ast = new FuncDefAST();
     ast->func_type = unique_ptr<BaseAST>($1);
-    ast->ident = *unique_ptr<string>($2);
+    ast->ident = *unique_ptr<string>($2); // 就是访问对象 string &
     ast->block = unique_ptr<BaseAST>($5);
     $$ = ast;
   }
@@ -108,7 +112,7 @@ Exp
   ;
 
 PrimaryExp
-  : "(" Exp ")" {
+  : '(' Exp ')' {
     auto ast = new PrimaryExpAST();
     ast->flag = 1;
     ast->exp = unique_ptr<BaseAST>($2);
@@ -130,16 +134,8 @@ UnaryExp
   } | UnaryOp UnaryExp {
     auto ast = new UnaryExpAST();
     ast->flag = 2;
-    ast->unaryop = unique_ptr<BaseAST>($1);
+    ast->unaryop = $1;
     ast->unaryexp = unique_ptr<BaseAST>($2);
-    $$ = ast;
-  }
-  ;
-
-UnaryOp
-  : OPERATOR {
-    auto ast = new UnaryOpAst();
-    ast->val = *unique_ptr<string>($1);
     $$ = ast;
   }
   ;
@@ -166,5 +162,6 @@ void yyerror(unique_ptr<BaseAST> &ast, const char *s) {
   for (i = 0; i < len; i++) {
     sprintf(buf,"%s%d ",buf,yytext[i]);
   }
-    fprintf(stderr, "ERROR: %s at symbol '%s' on line %d\n", s, buf, yylineno);
+  fprintf(stderr, "ERROR: %s at symbol '%s' on line %d\n", s, buf, yylineno);
+  cerr << "error: " << s << endl;
 }
