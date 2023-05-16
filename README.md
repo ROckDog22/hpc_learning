@@ -1,9 +1,13 @@
 # baidu_learning
 
 There are several modules in this repo!
+
+## tvm
 ## pybind_learning
 just study about HPC
 ## compiler_learning directory
+
+In this directory, i write the traditional compiler!
 
 The tool is a important compiler project for the translation from paddle code to the torch code
 
