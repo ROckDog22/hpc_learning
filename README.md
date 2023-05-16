@@ -2,9 +2,13 @@
 
 There are several modules in this repo!
 
-## tvm
+## tvm_learning
+about tvm study!
+
 ## pybind_learning
-just study about HPC
+
+just study about pybind 
+
 ## compiler_learning directory
 
 In this directory, i write the traditional compiler!
